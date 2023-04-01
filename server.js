@@ -17,6 +17,43 @@ app.use('/public', express.static(process.cwd() + '/public'));
 app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 
+const mongoose = require('mongoose');
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+const issueSchema = new mongoose.Schema({
+  project: {
+    type: String,
+    required: true
+  },
+  issue_title: {
+    type: String,
+    required: true
+  },
+  issue_text: {
+    type: String,
+    required: true
+  },
+  created_on: {
+    type: Date,
+    default: Date.now
+  },
+  updated_on: {
+    type: Date,
+    default: Date.now
+  },
+  created_by: {
+    type: String,
+    requierd: true
+  },
+  assigned_to: String,
+  open: {
+    type: Boolean,
+    default: true
+  },
+  status_text: String
+});
+const Issue = mongoose.model('Issue', issueSchema);
+
+Issue.remove({}).then((doc) => {}).catch((err) => { console.log(err);});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,7 +74,7 @@ app.route('/')
 fccTestingRoutes(app);
 
 //Routing for API 
-apiRoutes(app);  
+apiRoutes(app, Issue);  
     
 //404 Not Found Middleware
 app.use(function(req, res, next) {
